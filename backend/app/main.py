@@ -27,7 +27,7 @@ from app.api.v1.api import api_router
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # For development, tighten in production
+    allow_origins=["http://localhost:3000", "http://0.0.0.0:3000"], # Explicit origins needed instead of * when credentials=True
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

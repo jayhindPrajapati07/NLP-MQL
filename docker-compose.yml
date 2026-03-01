@@ -24,17 +24,26 @@ services:
     environment:
       - SYSTEM_DB_URI=mongodb://admin:adminpassword@system-db:27017
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
     depends_on:
       - system-db
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: builder
     container_name: nlp_mongo_frontend
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+      - WATCHPACK_POLLING=true
+      - NODE_ENV=development
+    command: sh -c "npm install && npm run dev"
     depends_on:
       - backend
 

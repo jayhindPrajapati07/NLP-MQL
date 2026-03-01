@@ -2,9 +2,10 @@ from cryptography.fernet import Fernet
 import os
 import base64
 
-# Key should be a base64 encoded 32-byte string. 
-# Defaults to a dev key if not provided.
-ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", Fernet.generate_key().decode())
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
+if not ENCRYPTION_KEY:
+    raise ValueError("ENCRYPTION_KEY environment variable is not set in .env")
+
 fernet = Fernet(ENCRYPTION_KEY.encode())
 
 def encrypt_uri(uri: str) -> str:

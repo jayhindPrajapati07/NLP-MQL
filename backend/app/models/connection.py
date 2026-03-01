@@ -17,14 +17,14 @@ class ConnectionInDB(ConnectionBase):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
-        json_encoders = {PyObjectId: str}
 
 class ConnectionResponse(ConnectionBase):
-    id: str
+    id: PyObjectId = Field(alias="_id")
     owner_id: str
     created_at: datetime
 
     class Config:
-        json_encoders = {PyObjectId: str}
+        populate_by_name = True
+        arbitrary_types_allowed = True

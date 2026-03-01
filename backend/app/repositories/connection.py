@@ -11,8 +11,8 @@ class ConnectionRepository:
     def collection(self):
         return get_db()[self.collection_name]
 
-    async def create(self, connection_in: ConnectionCreate, owner_id: str) -> ConnectionInDB:
-        conn_dict = connection_in.model_dump()
+    async def create(self, conn_in: ConnectionCreate, owner_id: str) -> ConnectionInDB:
+        conn_dict = conn_in.model_dump()
         raw_uri = conn_dict.pop("uri")
         conn_dict["encrypted_uri"] = encrypt_uri(raw_uri)
         conn_dict["owner_id"] = owner_id
