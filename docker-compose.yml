@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  system-db:
+    image: mongo:latest
+    container_name: nlp_mongo_system_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - system_db_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nlp_mongo_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+    environment:
+      - SYSTEM_DB_URI=mongodb://admin:adminpassword@system-db:27017
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - system-db
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nlp_mongo_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  system_db_data:
