@@ -42,23 +42,58 @@ The project is thoughtfully divided into logical modules to ensure separation of
 - **Data Tables**: A responsive, paginated data grid for raw data viewing.
 - **Chart Orchestrator**: Uses LLM feedback and data shapes to automatically select and render the appropriate chart type (e.g., temporal data -> line chart, categorical -> bar/pie chart).
 
-## 🚀 Getting Started
+## 🚀 Current Status: Phase 1 (Completed)
 
-*(Instructions will be populated once the codebase is initialized)*
+We have successfully built and integrated the core MVP features spanning the frontend, backend, and LLM orchestration:
+- ✅ **Dockerized Environment**: The Next.js frontend, FastAPI backend, and MongoDB System Database run seamlessly in isolated containers with live hot-reloading for development (`docker-compose up`).
+- ✅ **Environment Security**: Sensitive configurations like `GEMINI_API_KEY` and Fernet `ENCRYPTION_KEY` are safely loaded via `.env` files.
+- ✅ **Admin Authentication**: JWT-based secure user registration and login endpoints are active.
+- ✅ **Connection Vault**: Admins can register external MongoDB connection URIs. They are AES-encrypted at rest in the System Database. 
+- ✅ **LLM Pipeline (Gemini 2.5 Flash)**: Natural language queries map schema attributes to output strictly deterministic, read-only **MongoDB Aggregation Pipelines**.
+- ✅ **Interactive UI**: A rich Next.js Dashboard featuring a natural language Chatbox alongside Data Tables and intelligent visual Chart generation.
+- ✅ **Marketing Landing Pages**: Polished, dark-mode marketing pages (`/`, `/about`, `/features`, `/contact`) with global navigation.
+
+## 🗺️ Roadmap: Phase 2 (Advanced Analytics & RBAC)
+*This is the immediate next step for development when resuming work.*
+
+**1. Query Persistence & Dashboarding**
+- Build a `SavedQuery` model in the System Database to catalog successful LLM queries.
+- Add a "Save to Dashboard" UI modal so admins can persist a query alongside a locked chart visualization type.
+
+**2. Role-Based Access Control (RBAC)**
+- **User Management**: Admins can create restricted "Standard User" accounts via a new Settings interface.
+- **Assigned Queries**: Admins can strictly assign specific Saved Queries to Standard Users. 
+- **Restricted Dashboards**: Standard Users log in to a curated feed of pre-approved charts and execute them dynamically behind the scenes without ever seeing the raw underlying database connection credentials.
+
+**3. Advanced Excel Export**
+- Integrate `xlsx` libraries into the Next.js frontend.
+- Add an "Export to Excel" button so end-users can independently download underlying JSON result sets as formatted `.xlsx` spreadsheets directly from their browser memory.
+
+**4. Interactive Visualization Controls**
+- Add on-the-fly "Group By" capabilities to charts to let users aggregate data dynamically on the frontend.
+- Add "Sort" controls to data tables and charts so users can reorder their result sets visually without needing a new LLM query.
+
+**5. Complex Aggregations & Joins**
+- Upgrade the backend Schema Extraction to compile multi-collection dependency maps.
+- Advance the Gemini System Prompt to enforce complex cross-collection relational querying using `$lookup`, nested arrays using `$unwind`, and temporal operators (`$dateTrunc`).
+
+## 🛠️ Getting Started
 
 ### Prerequisites
-- Docker and Docker Compose
-- Google Gemini API Key
+- Docker Desktop
+- Node.js (for local CLI tooling)
+- `.env` file containing `GEMINI_API_KEY` and `ENCRYPTION_KEY` (See `.env.example`).
 
-### Installation via Docker
-1. Clone the repository.
-2. Provide environment variables (`.env`).
-3. Run `docker-compose up --build`.
-4. Access the dashboard at `http://localhost:3000`.
+### Running Locally
+```bash
+# Start all containers in development mode (hot-reloading enabled)
+docker-compose up --build -d
+```
+Access the application at `http://localhost:3000`.
 
-## 🔒 Security Considerations
-- **Read-Only Enforcement**: At the code level, only `find` and `aggregate` methods will be supported for external database connections.
-- **Credential Encryption**: External connection strings must be encrypted at rest in the System Database.
+## 🔒 Security Summary
+- **Read-Only**: The backend query execution engine physically rejects `$out` or `$merge` mutation stages.
+- **Key Safety**: The `ENCRYPTION_KEY` is completely decoupled from the container state, preventing data loss across restarts.
 
 ---
 *This is a research project exploring the intersection of Generative AI, Data Engineering, and User Experience.*
