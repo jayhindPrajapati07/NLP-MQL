@@ -32,7 +32,9 @@ User Question: "{natural_language_query}"
 Instructions:
 1. Determine the correct collection to query.
 2. Generate the appropriate MQL using strictly the MongoDB aggregation pipeline format. This must be a JSON array of stages (e.g., [{{ "$match": ... }}, {{ "$limit": 2 }}]).
-3. Return ONLY strictly valid JSON with exactly two fields: "collection" (string) and "query" (array).
+3. IF the user asks to join or combine data across collections, use the `$lookup` and `$unwind` stages appropriately based on the `_relationships_guess` provided in the schema.
+4. IF the user asks to aggregate by date or time, utilize the `$dateTrunc` operator to group accurately.
+5. Return ONLY strictly valid JSON with exactly two fields: "collection" (string) and "query" (array).
 4. The "query" field MUST be a List/Array representing the aggregation pipeline. NEVER return a dictionary for the "query" field.
 5. Do NOT include markdown code blocks, backticks, or any non-JSON text. Return the raw JSON string only. Ensure the query is strictly READ-ONLY (no $out, $merge, etc.).
 

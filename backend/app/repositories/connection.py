@@ -36,6 +36,20 @@ class ConnectionRepository:
             connections.append(ConnectionInDB(**conn_dict))
         return connections
 
+    async def update(self, conn_id: str, conn_in: ConnectionCreate) -> ConnectionInDB | None:
+        if not ObjectId.is_valid(conn_id):
+            return None
+        
+        conn_dict = conn_in.model_dump()
+        raw_uri = conn_dict.pop("uri")
+        conn_dict["encrypted_uri"] = encrypt_uri(raw_uri)
+        
+        await self.collection.update_one(
+            {"_id": ObjectId(conn_id)},
+            {"$set": conn_dict}
+        )
+        return await self.get_by_id(conn_id)
+
     async def delete(self, conn_id: str) -> bool:
         if not ObjectId.is_valid(conn_id):
             return False

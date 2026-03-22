@@ -32,4 +32,15 @@ class UserRepository:
         user_dict["_id"] = result.inserted_id
         return UserInDB(**user_dict)
 
+    async def get_all(self) -> list[UserInDB]:
+        cursor = self.collection.find({})
+        users = await cursor.to_list(length=1000)
+        return [UserInDB(**u) for u in users]
+
+    async def delete(self, user_id: str) -> bool:
+        if not ObjectId.is_valid(user_id):
+            return False
+        result = await self.collection.delete_one({"_id": ObjectId(user_id)})
+        return result.deleted_count > 0
+
 user_repository = UserRepository()

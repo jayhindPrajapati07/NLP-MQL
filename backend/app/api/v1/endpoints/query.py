@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from app.api.deps import get_current_active_user
+from app.api.deps import get_current_active_user, get_current_admin_user
 from app.models.user import UserInDB
 from app.repositories.connection import connection_repository
 from app.core.encryption import decrypt_uri
@@ -22,7 +22,7 @@ class QueryResponse(BaseModel):
 @router.post("/", response_model=QueryResponse)
 async def ask_question(
     query_req: QueryRequest,
-    current_user: UserInDB = Depends(get_current_active_user)
+    current_user: UserInDB = Depends(get_current_admin_user)
 ):
     # 1. Fetch connection profile
     conn = await connection_repository.get_by_id(query_req.connection_id)

@@ -29,7 +29,7 @@ chmod +x run.sh
 
 **What the scripts do:**
 1. Check if a `.env` file exists. If it doesn't, it creates one from `.env.example` and pauses to let you insert your API Key.
-2. Runs the Docker Compose build logic out of the box (`docker-compose up -d --build`).
+2. Runs the Docker Compose build logic out of the box (`docker compose up -d --build`).
 3. Outputs the URLs where the system is accessible.
 
 ---
@@ -48,7 +48,7 @@ If you prefer applying the commands manually without the wrapper scripts:
    ```
 3. **Build and Run**: Run Docker Compose in detached mode.
    ```bash
-   docker-compose up -d --build
+   docker compose up -d --build
    ```
 
 ---
@@ -66,10 +66,10 @@ Once startup completes, your containers will be exposed on the following ports:
 ### Stopping the Services
 To shut down the entire stack without wiping out your System Database data (since it uses a Docker cache volume):
 ```bash
-docker-compose down
+docker compose down
 ```
 
 To entirely wipe out everything, including saved data and volumes:
 ```bash
-docker-compose down -v
+docker compose down -v
 ```

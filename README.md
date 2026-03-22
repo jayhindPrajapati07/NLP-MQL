@@ -45,7 +45,7 @@ The project is thoughtfully divided into logical modules to ensure separation of
 ## 🚀 Current Status: Phase 1 (Completed)
 
 We have successfully built and integrated the core MVP features spanning the frontend, backend, and LLM orchestration:
-- ✅ **Dockerized Environment**: The Next.js frontend, FastAPI backend, and MongoDB System Database run seamlessly in isolated containers with live hot-reloading for development (`docker-compose up`).
+- ✅ **Dockerized Environment**: The Next.js frontend, FastAPI backend, and MongoDB System Database run seamlessly in isolated containers with live hot-reloading for development (`docker compose up`).
 - ✅ **Environment Security**: Sensitive configurations like `GEMINI_API_KEY` and Fernet `ENCRYPTION_KEY` are safely loaded via `.env` files.
 - ✅ **Admin Authentication**: JWT-based secure user registration and login endpoints are active.
 - ✅ **Connection Vault**: Admins can register external MongoDB connection URIs. They are AES-encrypted at rest in the System Database. 
@@ -87,7 +87,7 @@ We have successfully built and integrated the core MVP features spanning the fro
 ### Running Locally
 ```bash
 # Start all containers in development mode (hot-reloading enabled)
-docker-compose up --build -d
+docker compose up --build -d
 ```
 Access the application at `http://localhost:3000`.
 
