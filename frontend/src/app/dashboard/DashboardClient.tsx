@@ -46,8 +46,8 @@ export default function DashboardClient() {
     const [viewMode, setViewMode] = useState<'table' | 'bar' | 'line' | 'pie'>('table');
 
     // Interactive Controls State
-    const [sortConfig, setSortConfig] = useState<{key: string, direction: 'asc'|'desc'} | null>(null);
-    const [groupConfig, setGroupConfig] = useState<{groupBy: string, aggregateBy: string, aggregateType: 'sum'|'count'} | null>(null);
+    const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
+    const [groupConfig, setGroupConfig] = useState<{ groupBy: string, aggregateBy: string, aggregateType: 'sum' | 'count' } | null>(null);
 
     useEffect(() => {
         // Initial fetch
@@ -223,15 +223,19 @@ export default function DashboardClient() {
         // Grouping
         if (groupConfig) {
             const { groupBy, aggregateBy, aggregateType } = groupConfig;
+            const aggregateField = aggregateType === 'count' ? 'count' : `sum_${aggregateBy}`;
+
             const grouped = data.reduce((acc: any, row: any) => {
                 const key = String(row[groupBy] || 'Unknown');
-                if (!acc[key]) acc[key] = { [groupBy]: key, [aggregateBy]: 0 };
-                
+                const originalVal = row[groupBy] !== undefined ? row[groupBy] : 'Unknown';
+
+                if (!acc[key]) acc[key] = { [groupBy]: originalVal, [aggregateField]: 0 };
+
                 if (aggregateType === 'count') {
-                    acc[key][aggregateBy] += 1;
+                    acc[key][aggregateField] += 1;
                 } else if (aggregateType === 'sum') {
                     const val = Number(row[aggregateBy]);
-                    if (!isNaN(val)) acc[key][aggregateBy] += val;
+                    if (!isNaN(val)) acc[key][aggregateField] += val;
                 }
                 return acc;
             }, {});
@@ -275,7 +279,8 @@ export default function DashboardClient() {
         const strKeys = keys.filter(k => typeof results[0][k] === 'string' || typeof results[0][k] === 'boolean');
 
         const xKey = strKeys.length > 0 ? strKeys[0] : keys[0];
-        const yKey = numKeys.length > 0 ? numKeys[0] : (keys.length > 1 ? keys[1] : null);
+        const possibleYKeys = numKeys.filter(k => k !== xKey);
+        const yKey = possibleYKeys.length > 0 ? possibleYKeys[0] : (keys.find(k => k !== xKey) || null);
 
         return { xKey, yKey };
     };
@@ -292,43 +297,43 @@ export default function DashboardClient() {
                 {currentUser?.is_admin && (
                     <>
                         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                        {connections.map((conn) => (
-                            <div key={conn._id || conn.id} className="group relative">
-                                <button
-                                    onClick={() => setActiveConnection(conn._id || conn.id)}
-                                    className={`w-full text-left px-4 py-3 rounded-lg flex items-center justify-between transition-all pr-16 ${activeConnection === (conn._id || conn.id)
-                                        ? "bg-primary text-primary-foreground shadow-md font-medium"
-                                        : "hover:bg-card text-secondary-foreground"
-                                        }`}
-                                >
-                                    <div className="flex items-center gap-3 truncate">
-                                        <div className="w-2 h-2 rounded-full bg-green-500 shrink-0"></div>
-                                        <span className="truncate">{conn.name}</span>
+                            {connections.map((conn) => (
+                                <div key={conn._id || conn.id} className="group relative">
+                                    <button
+                                        onClick={() => setActiveConnection(conn._id || conn.id)}
+                                        className={`w-full text-left px-4 py-3 rounded-lg flex items-center justify-between transition-all pr-16 ${activeConnection === (conn._id || conn.id)
+                                            ? "bg-primary text-primary-foreground shadow-md font-medium"
+                                            : "hover:bg-card text-secondary-foreground"
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-3 truncate">
+                                            <div className="w-2 h-2 rounded-full bg-green-500 shrink-0"></div>
+                                            <span className="truncate">{conn.name}</span>
+                                        </div>
+                                    </button>
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={(e) => handleEditClick(conn, e)} className="p-1.5 bg-secondary/80 rounded-md hover:bg-secondary text-secondary-foreground hover:text-white transition-colors" title="Edit Connection">
+                                            <Edit2 className="w-4 h-4" />
+                                        </button>
+                                        <button onClick={(e) => handleDeleteConnection(conn._id || conn.id, e)} className="p-1.5 bg-destructive/10 rounded-md hover:bg-destructive text-destructive transition-colors hover:text-white" title="Delete Connection">
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
                                     </div>
-                                </button>
-                                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onClick={(e) => handleEditClick(conn, e)} className="p-1.5 bg-secondary/80 rounded-md hover:bg-secondary text-secondary-foreground hover:text-white transition-colors" title="Edit Connection">
-                                        <Edit2 className="w-4 h-4" />
-                                    </button>
-                                    <button onClick={(e) => handleDeleteConnection(conn._id || conn.id, e)} className="p-1.5 bg-destructive/10 rounded-md hover:bg-destructive text-destructive transition-colors hover:text-white" title="Delete Connection">
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
 
-                        <button
-                            onClick={() => {
-                                setEditingConnId(null);
-                                setNewConnName("");
-                                setNewConnDb("");
-                                setNewConnUri("");
-                                setShowAddModal(true);
-                            }}
-                            className="w-full mt-4 flex items-center justify-center gap-2 py-3 border border-dashed border-border text-secondary-foreground rounded-lg hover:border-primary hover:text-primary transition-colors"
-                        >
-                            <Plus className="w-5 h-5" /> Add Connection
-                        </button>
+                            <button
+                                onClick={() => {
+                                    setEditingConnId(null);
+                                    setNewConnName("");
+                                    setNewConnDb("");
+                                    setNewConnUri("");
+                                    setShowAddModal(true);
+                                }}
+                                className="w-full mt-4 flex items-center justify-center gap-2 py-3 border border-dashed border-border text-secondary-foreground rounded-lg hover:border-primary hover:text-primary transition-colors"
+                            >
+                                <Plus className="w-5 h-5" /> Add Connection
+                            </button>
                         </div>
                     </>
                 )}
@@ -384,7 +389,7 @@ export default function DashboardClient() {
                                 <button onClick={() => setViewMode('line')} className={`p-2 rounded-md transition-all ${viewMode === 'line' ? 'bg-primary text-white shadow-sm' : 'text-gray-400 hover:text-gray-200'}`} title="Line Chart"><TrendingUp className="w-4 h-4" /></button>
                                 <button onClick={() => setViewMode('pie')} className={`p-2 rounded-md transition-all ${viewMode === 'pie' ? 'bg-primary text-white shadow-sm' : 'text-gray-400 hover:text-gray-200'}`} title="Pie Chart"><PieChart className="w-4 h-4" /></button>
                             </div>
-                            
+
                             <button onClick={handleExportExcel} className="flex items-center gap-2 bg-secondary text-secondary-foreground hover:text-white px-4 py-2 rounded-md hover:bg-secondary/80 transition-all shadow-sm active:scale-95 text-sm font-semibold border border-border">
                                 <Download className="w-4 h-4" /> Export
                             </button>
@@ -420,7 +425,7 @@ export default function DashboardClient() {
                             <div className="flex flex-wrap gap-4 mt-2">
                                 <div className="flex items-center gap-2 bg-card p-2 rounded-lg border border-border text-sm shadow-sm">
                                     <span className="text-secondary-foreground font-medium pl-1">Sort:</span>
-                                    <select 
+                                    <select
                                         className="bg-secondary/50 border border-border rounded px-2 py-1 outline-none text-foreground"
                                         value={sortConfig?.key || ""}
                                         onChange={e => setSortConfig(e.target.value ? { key: e.target.value, direction: sortConfig?.direction || 'desc' } : null)}
@@ -429,8 +434,8 @@ export default function DashboardClient() {
                                         {Object.keys(queryResult.results[0] || {}).map(k => <option key={k} value={k}>{k}</option>)}
                                     </select>
                                     {sortConfig && (
-                                        <button 
-                                            onClick={() => setSortConfig({...sortConfig, direction: sortConfig.direction === 'asc' ? 'desc' : 'asc'})}
+                                        <button
+                                            onClick={() => setSortConfig({ ...sortConfig, direction: sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
                                             className="px-2 py-1 bg-secondary rounded hover:text-white transition-colors"
                                         >
                                             {sortConfig.direction.toUpperCase()}
@@ -440,10 +445,10 @@ export default function DashboardClient() {
 
                                 <div className="flex items-center gap-2 bg-card p-2 rounded-lg border border-border text-sm shadow-sm">
                                     <span className="text-secondary-foreground font-medium pl-1">Group By:</span>
-                                    <select 
+                                    <select
                                         className="bg-secondary/50 border border-border rounded px-2 py-1 outline-none text-foreground"
                                         value={groupConfig?.groupBy || ""}
-                                        onChange={e => setGroupConfig(e.target.value ? { groupBy: e.target.value, aggregateBy: groupConfig?.aggregateBy || Object.keys(queryResult.results[0]||{})[0], aggregateType: groupConfig?.aggregateType || 'count' } : null)}
+                                        onChange={e => setGroupConfig(e.target.value ? { groupBy: e.target.value, aggregateBy: groupConfig?.aggregateBy || Object.keys(queryResult.results[0] || {})[0], aggregateType: groupConfig?.aggregateType || 'count' } : null)}
                                     >
                                         <option value="">None</option>
                                         {Object.keys(queryResult.results[0] || {}).map(k => <option key={k} value={k}>{k}</option>)}
@@ -451,21 +456,23 @@ export default function DashboardClient() {
                                     {groupConfig && (
                                         <>
                                             <span className="text-secondary-foreground mx-1">aggregate</span>
-                                            <select 
+                                            <select
                                                 className="bg-secondary/50 border border-border rounded px-2 py-1 outline-none text-foreground"
                                                 value={groupConfig.aggregateType}
-                                                onChange={e => setGroupConfig({...groupConfig, aggregateType: e.target.value as 'count'|'sum'})}
+                                                onChange={e => setGroupConfig({ ...groupConfig, aggregateType: e.target.value as 'count' | 'sum' })}
                                             >
                                                 <option value="count">COUNT</option>
                                                 <option value="sum">SUM</option>
                                             </select>
-                                            <select 
-                                                className="bg-secondary/50 border border-border rounded px-2 py-1 outline-none text-foreground max-w-[120px] truncate"
-                                                value={groupConfig.aggregateBy}
-                                                onChange={e => setGroupConfig({...groupConfig, aggregateBy: e.target.value})}
-                                            >
-                                                {Object.keys(queryResult.results[0] || {}).map(k => <option key={k} value={k}>{k}</option>)}
-                                            </select>
+                                            {groupConfig.aggregateType !== 'count' && (
+                                                <select
+                                                    className="bg-secondary/50 border border-border rounded px-2 py-1 outline-none text-foreground max-w-[120px] truncate"
+                                                    value={groupConfig.aggregateBy}
+                                                    onChange={e => setGroupConfig({ ...groupConfig, aggregateBy: e.target.value })}
+                                                >
+                                                    {Object.keys(queryResult.results[0] || {}).map(k => <option key={k} value={k}>{k}</option>)}
+                                                </select>
+                                            )}
                                         </>
                                     )}
                                 </div>
