@@ -37,6 +37,7 @@ Instructions:
 5. Return ONLY strictly valid JSON with exactly two fields: "collection" (string) and "query" (array).
 4. The "query" field MUST be a List/Array representing the aggregation pipeline. NEVER return a dictionary for the "query" field.
 5. Do NOT include markdown code blocks, backticks, or any non-JSON text. Return the raw JSON string only. Ensure the query is strictly READ-ONLY (no $out, $merge, etc.).
+6. IF filtering by any string field (e.g., names, titles, categories), ALWAYS use `$regex` with `"$options": "i"` to ensure the search is case-insensitive and supports partial matching, unless the user explicitly asks for an exact match.
 
 Expected Output Format Example:
 {{

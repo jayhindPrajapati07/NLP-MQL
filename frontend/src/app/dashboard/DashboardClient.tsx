@@ -535,7 +535,7 @@ export default function DashboardClient() {
                                                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                                                         <XAxis dataKey={xKey} stroke="#94a3b8" tick={{ fill: '#94a3b8' }} />
                                                         <YAxis stroke="#94a3b8" tick={{ fill: '#94a3b8' }} />
-                                                        <RechartsTooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }} />
+                                                        <RechartsTooltip cursor={{ fill: 'var(--color-primary)', opacity: 0.15 }} contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }} />
                                                         <Bar dataKey={yKey} fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
                                                     </BarChart>
                                                 ) : viewMode === 'line' ? (
@@ -551,7 +551,7 @@ export default function DashboardClient() {
                                                         <Pie data={data} cx="50%" cy="50%" innerRadius={60} outerRadius={120} paddingAngle={2} dataKey={yKey} nameKey={xKey} label>
                                                             {data.map((_: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                                         </Pie>
-                                                        <RechartsTooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }} />
+                                                        <RechartsTooltip contentStyle={{ backgroundColor: '#fff5f5ff', borderColor: '#334155', color: '#0f172a', borderRadius: '8px' }} />
                                                     </RechartsPie>
                                                 )}
                                             </ResponsiveContainer>
